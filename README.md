@@ -24,6 +24,6 @@ Subscribe to a iCal feed and show events on your Raspberry Pi Pico W with a 1.14
    - `secrets.py` 
    - `wifi.py`
    - `LCDScreen.py`
-3. Now you should open `__init__.py` and click the green "Play" Button in the nav-bar. 
+3. Now you should open `main.py` and click the green "Play" Button in the nav-bar. 
 
 You should see something printed in the console and the screen should show something :)
