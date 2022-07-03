@@ -1,4 +1,5 @@
 import network
+import rp2
 import time
 
 network_status = {
@@ -11,7 +12,8 @@ network_status = {
     "-3" : "Bad Auth / Invalid Credentials"
 }
 
-def wifi_connect(SSID, PASSWORD):
+def wifi_connect(SSID, PASSWORD, COUNTRY):
+    rp2.country(COUNTRY)
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     wlan.connect(SSID, PASSWORD)

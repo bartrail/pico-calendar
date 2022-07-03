@@ -47,23 +47,25 @@ if __name__=='__main__':
     keyA = Pin(15,Pin.IN,Pin.PULL_UP)
     keyB = Pin(17,Pin.IN,Pin.PULL_UP)
     
-    key2 = Pin(2 ,Pin.IN,Pin.PULL_UP) #上
-    key3 = Pin(3 ,Pin.IN,Pin.PULL_UP)#中
-    key4 = Pin(16 ,Pin.IN,Pin.PULL_UP)#左
-    key5 = Pin(18 ,Pin.IN,Pin.PULL_UP)#下
-    key6 = Pin(20 ,Pin.IN,Pin.PULL_UP)#右
+    keyUp = Pin(2 ,Pin.IN,Pin.PULL_UP)
+    keyCtrl = Pin(3 ,Pin.IN,Pin.PULL_UP)
+    keyLeft = Pin(16 ,Pin.IN,Pin.PULL_UP)
+    keyDown = Pin(18 ,Pin.IN,Pin.PULL_UP)
+    keyRight = Pin(20 ,Pin.IN,Pin.PULL_UP)
     
     try:
-        wlan = wifi_connect(secrets.SSID, secrets.PASSWORD)
+        wlan = wifi_connect(secrets.SSID, secrets.PASSWORD, secrets.COUNTRY)
+        wlan_status = wlan.ifconfig()
+        LCD.text('{0} ({1})'.format(secrets.SSID, wlan_status[0]), 2, 2, LCD.blue)
     except RuntimeError as err:
-        LCD.text(str(err), 0, 0, LCD.red)
-        LCD.show()
+        LCD.text(str(err), 2, 2, LCD.red)
+        wlan = false
+    
+    LCD.show()
     
     while(1):
         
-       # if(wlan.isconnected()):
-       #     print(wlan.ifconfig())
-       #     LCD.text("Connected to " + secrets.SSID, 90, offsetTop + offsetText * 4, LCD.blue)
+
         
         
         if(keyA.value() == 0):
@@ -91,7 +93,7 @@ if __name__=='__main__':
     
     
     
-        if(key2.value() == 0):#上
+        if(keyUp.value() == 0):#上
             LCD.fill_rect(37,35,20,20,LCD.red)
             print("UP")
         else :
@@ -99,7 +101,7 @@ if __name__=='__main__':
             LCD.rect(37,35,20,20,LCD.red)
             
             
-        if(key3.value() == 0):#中
+        if(keyCtrl.value() == 0):#中
             LCD.fill_rect(37,60,20,20,LCD.red)
             print("CTRL")
         else :
@@ -108,7 +110,7 @@ if __name__=='__main__':
             
         
 
-        if(key4.value() == 0):#左
+        if(keyLeft.value() == 0):#左
             LCD.fill_rect(12,60,20,20,LCD.red)
             print("LEFT")
         else :
@@ -116,7 +118,7 @@ if __name__=='__main__':
             LCD.rect(12,60,20,20,LCD.red)
             
             
-        if(key5.value() == 0):#下
+        if(keyDown.value() == 0):#下
             LCD.fill_rect(37,85,20,20,LCD.red)
             print("DOWN")
         else :
@@ -124,7 +126,7 @@ if __name__=='__main__':
             LCD.rect(37,85,20,20,LCD.red)
             
             
-        if(key6.value() == 0):#右
+        if(keyRight.value() == 0):#右
             LCD.fill_rect(62,60,20,20,LCD.red)
             print("RIGHT")
         else :
