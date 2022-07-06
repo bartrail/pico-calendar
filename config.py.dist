@@ -1,0 +1,5 @@
+WIFI_SSID = "Your Wifi"
+WIFI_PASSWORD = "Your secure password"
+WIFI_COUNTRY = "DE"
+
+ICAL_URL = ""

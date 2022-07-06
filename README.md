@@ -19,9 +19,13 @@ Subscribe to a iCal feed and show events on your Raspberry Pi Pico W with a 1.14
 
 ## Copy all necessary files to the Pico
 
-1. Copy the file `secrets.py.dist` to `secrets.py` and modify the variables `SSID` `PASSWORD` and `COUNTRY` to your needs
+1. Copy the file `config.py.dist` to `config.py` and modify these variables according to your needs:
+   - `WIFI_SSID` 
+   - `WIFI_PASSWORD`
+   - `WIFI_COUNTRY`
+   - `ICAL_URL`
 2. Rightclick on these files and select "Upload to /" or "Upload to Raspberry Pi Pico"
-   - `secrets.py` 
+   - `config.py` 
    - `wifi.py`
    - `LCDScreen.py`
 3. Now you should open `main.py` and click the green "Play" Button in the nav-bar. 

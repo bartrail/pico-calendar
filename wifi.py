@@ -18,7 +18,7 @@ def wifi_connect(SSID, PASSWORD, COUNTRY):
     wlan.active(True)
     wlan.connect(SSID, PASSWORD)
     
-    max_wait = 20
+    max_wait = 10
     
     while max_wait > 0:
         if wlan.status() < 0 or wlan.status() >= 3:

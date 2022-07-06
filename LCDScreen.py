@@ -1,20 +1,20 @@
 import framebuf
 from machine import Pin,SPI,PWM
 
-DC = 8
-RST = 12
+DC = 8     # data/command
+RST = 12   # reset
 MOSI = 11
 SCK = 10
-CS = 9
+CS = 9     # chip select
 
 class LCDScreen(framebuf.FrameBuffer):
     def __init__(self):
         self.width = 240
         self.height = 135
-        
+
         self.cs = Pin(CS,Pin.OUT)
         self.rst = Pin(RST,Pin.OUT)
-        
+
         self.cs(1)
         self.spi = SPI(1)
         self.spi = SPI(1,1000_000)
@@ -23,6 +23,7 @@ class LCDScreen(framebuf.FrameBuffer):
         self.dc(1)
         self.buffer = bytearray(self.height * self.width * 2)
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
+        
         self.init_display()
         
         self.red   =   0x07E0
@@ -45,7 +46,7 @@ class LCDScreen(framebuf.FrameBuffer):
         self.cs(1)
 
     def init_display(self):
-        """Initialize dispaly"""  
+        """Initialize display"""
         self.rst(1)
         self.rst(0)
         self.rst(1)
