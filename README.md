@@ -24,10 +24,8 @@ Subscribe to a iCal feed and show events on your Raspberry Pi Pico W with a 1.14
    - `WIFI_PASSWORD`
    - `WIFI_COUNTRY`
    - `ICAL_URL`
-2. Rightclick on these files and select "Upload to /" or "Upload to Raspberry Pi Pico"
-   - `config.py` 
-   - `wifi.py`
-   - `LCDScreen.py`
-3. Now you should open `main.py` and click the green "Play" Button in the nav-bar. 
+2. Right-click on these the directory `src` and select "Upload to /" or "Upload to Raspberry Pi Pico" to transfer all files to the Pico
+3. Now you should open `main.py` and click the green "Play" Button in the nav-bar.
+4. To run it without an attached computer, copy `main.py` as well to / 
 
 You should see something printed in the console and the screen should show something :)

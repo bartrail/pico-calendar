@@ -1,8 +1,8 @@
 from machine import Pin, PWM, ADC
 
-from wifi import wifi_connect
-from LCDScreen import LCDScreen
-from ical.ApiClient import ApiClient
+from src.wifi import wifi_connect
+from src.LCDScreen import LCDScreen
+from src.ical.ApiClient import ApiClient
 import config
 
 BL = 13
@@ -10,16 +10,16 @@ BL = 13
 sensor_temp = ADC(4)
 conversion_factor = 3.3 / (65535)
 
-
-
-
 def loadData():
         
-    # file = open("ical.json", "r")
-    # fileContent = file.read()
+    file = open("ical.json", "r")
+    fileContent = file.read()
     
-    Api = ApiClient(config.ICAL_URL)
-    Api.parseResponse()
+    Api = ApiClient(config.ICAL_URL, fileContent)
+#    Api = ApiClient(config.ICAL_URL)
+    Api.parse_response()
+
+    #print(events)
 
 if __name__ == '__main__':
 
@@ -74,10 +74,12 @@ if __name__ == '__main__':
     LCD.show()    
     loadData()
 
-
     while (1):
 
         if (keyA.value() == 0):
+            
+            break
+        
             LCD.fill_rect(208, 12, 20, 20, LCD.red)
 
             reading = sensor_temp.read_u16() * conversion_factor
@@ -135,6 +137,5 @@ if __name__ == '__main__':
 
         LCD.show()
 
-    time.sleep(1)
     LCD.fill(LCD.blue)
     LCD.show()
