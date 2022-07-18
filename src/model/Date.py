@@ -7,28 +7,29 @@ class Date:
     day: int
     hour: int
     minute: int
+    seconds: int
     unix: int
-    date: str
+    iso8601: str
 
-    def __init__(self, year: int, month: int, day: int, hour: int, minute: int):
+    def __init__(self, year: int, month: int, day: int, hour: int, minute: int, seconds: int):
 
-        self.date = '{0}-{1}-{2} {3}:{4}'.format(
+        self.iso8601 = '{0}-{1}-{2}T{3}:{4}:{5}+00'.format(
             year,
             '{:0>2}'.format(str(month)),
             '{:0>2}'.format(str(day)),
             '{:0>2}'.format(str(hour)),
             '{:0>2}'.format(str(minute)),
+            '{:0>2}'.format(str(seconds)),
         )
         self.year = year
         self.month = month
         self.day = day
         self.hour = hour
         self.minute = minute
+        self.seconds = seconds
         self.unix = self.__calculate_unix()
 
         self.__assert_values()
-
-        print(self.unix, self.date, self.year, self.month, self.day)
 
     @staticmethod
     def from_date_str(date_str: str) -> 'Date':
@@ -40,11 +41,43 @@ class Date:
         month = int(date_str[4:6])
         day = int(date_str[6:8])
 
-        return Date(year, month, day, 0, 0)
+        return Date(year, month, day, 0, 0, 0)
 
     @staticmethod
-    def from_date_str_and_date_diff(date_str: str, date_diff: str):
-        date = Date.from_date_str(date_str)
+    def from_unix(unix: int):
+        days_from_1970 = int(unix / 86400)
+        seconds_left = unix % 86400
+        hours = int(seconds_left / 3600)
+        minutes = int((seconds_left - hours * 3600) / 60)
+        seconds = seconds_left % 60
+
+        # we add +1 because we add the days AFTER january, the 1st 1970!
+        days_left = days_from_1970 + 1
+        year = 1970
+        month = 1
+        while days_left > 0:
+            days_per_year = 366 if Date.__is_leap_year(year) else 365
+
+            # when there are more days per year left, increase the year first sca
+            if days_left > days_per_year:
+                year += 1
+                days_left -= days_per_year
+                continue
+
+            # count the months
+            if days_left <= days_per_year:
+                days_per_month = Date.__days_in_month(year, month)
+                # when we have days for the current month left, increase month
+                if days_left - days_per_month > 0:
+                    days_left -= days_per_month
+                    month += 1
+
+                # when we have no days left, exit the loop
+                if days_left - days_per_month <= 0:
+                    break
+
+        return Date(year, month, days_left, hours, minutes, seconds)
+
 
     def __calculate_unix(self) -> int:
         days = 0
@@ -55,25 +88,33 @@ class Date:
                 if year == self.year and month > self.month:
                     continue
 
-                # from current month, just take the date we have
+                # from current month, just take the day we have
                 if year == self.year and month == self.month:
-                    days += self.day
+                    days += self.day - 1 # subtract one day because math :P
                     continue
 
-                days += self.__number_of_days(year, month)
+                days += Date.__days_in_month(year, month)
 
             year -= 1
 
-        return days * 86400 + self.hour * 3600 + self.minute * 60
+        return days * 86400 + self.hour * 3600 + self.minute * 60 + self.seconds
 
-    def __number_of_days(self, y: int, m: int) -> int:
-        leap = 0
-        if y % 400 == 0:
-            leap = 1
-        elif y % 100 == 0:
-            leap = 0
-        elif y % 4 == 0:
-            leap = 1
+    @staticmethod
+    def __is_leap_year(year: int) -> bool:
+        leap = False
+
+        if year % 400 == 0:
+            leap = True
+        elif year % 100 == 0:
+            leap = False
+        elif year % 4 == 0:
+            leap = True
+
+        return leap
+
+    @staticmethod
+    def __days_in_month(y: int, m: int) -> int:
+        leap = 1 if Date.__is_leap_year(y) else 0
         if m == 2:
             return 28 + leap
         list = [1, 3, 5, 7, 8, 10, 12]
@@ -82,28 +123,13 @@ class Date:
         return 30
 
     def is_greater(self, date: 'Date') -> bool:
-        if (self.year > date.year):
-            return True
-
-        if (self.month > date.month):
-            return True
-
-        if (self.day > date.day):
-            return True
-
-        if (self.hour > date.hour):
-            return True
-
-        if (self.minute > date.minute):
-            return True
-
-        return False
+        return self.unix > date.unix
 
     def is_lower(self, date: 'Date') -> bool:
         return not self.is_greater(date)
 
     def is_equal(self, date: 'Date') -> bool:
-        return self.date == date.date
+        return self.iso8601 == date.iso8601
 
     def __assert_values(self):
         if self.year < 1900 or self.year > 2100:
@@ -112,7 +138,7 @@ class Date:
         if self.month < 1 or self.month > 12:
             raise ParseError.month_out_of_range(self.month)
 
-        possible_days = self.__number_of_days(self.year, self.month)
+        possible_days = Date.__days_in_month(self.year, self.month)
         if (self.day < 0 or self.day > possible_days):
             raise ParseError.day_out_of_range(self.day, self.month, self.year, possible_days)
 

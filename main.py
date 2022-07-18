@@ -1,5 +1,8 @@
+import re
 from machine import Pin, PWM, ADC
 
+from src.helper import regex_findall
+from src.model.Date import Date
 from src.wifi import wifi_connect
 from src.LCDScreen import LCDScreen
 from src.ical.ApiClient import ApiClient
@@ -10,16 +13,14 @@ BL = 13
 sensor_temp = ADC(4)
 conversion_factor = 3.3 / (65535)
 
-def loadData():
-        
-    file = open("ical.json", "r")
-    fileContent = file.read()
-    
-    Api = ApiClient(config.ICAL_URL, fileContent)
-#    Api = ApiClient(config.ICAL_URL)
-    Api.parse_response()
 
-    #print(events)
+def load_data():
+    #file = open("ical.json", "r")
+    #fileContent = file.read()
+
+    #Api = ApiClient(config.ICAL_URL, fileContent)
+    Api = ApiClient(config.ICAL_URL)
+    events = Api.parse_response()
 
 if __name__ == '__main__':
 
@@ -31,6 +32,18 @@ if __name__ == '__main__':
     pwm.duty_u16(32768)  # max 65535
 
     LCD = LCDScreen()
+
+    # Date.from_unix(1658048884)  # 2022-07-17 09:08:04 GMT
+    # Date.from_unix(1709190443)  # 2024-02-29 07:07:23 GMT
+    # Date.from_unix(1767018959)  # 2025-12-29 14:35:59 GMT
+    # Date.from_unix(1767191759)  # 2025-12-31 14:35:59 GMT
+    #
+    # parse_trigger('-PT16H')
+    # parse_trigger('-P23T')
+    # parse_trigger('-P12T5H')
+    # parse_trigger('-PT23M')
+    # parse_trigger('-P10T12H34M')
+    # parse_trigger('-P3T4H2M')
 
     # color BRG
     LCD.fill(LCD.white)
@@ -71,15 +84,15 @@ if __name__ == '__main__':
         LCD.text(str(err), 2, 2, LCD.red)
         wlan = False
 
-    LCD.show()    
-    loadData()
+    LCD.show()
+    load_data()
 
     while (1):
 
         if (keyA.value() == 0):
-            
+
             break
-        
+
             LCD.fill_rect(208, 12, 20, 20, LCD.red)
 
             reading = sensor_temp.read_u16() * conversion_factor

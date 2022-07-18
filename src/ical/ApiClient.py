@@ -1,6 +1,9 @@
 import urequests
 import json
+import re
 
+from src.AppError import AppError
+from src.helper import regex_findall
 from src.model.Alarm import Alarm
 from src.model.Date import Date
 from src.model.Event import Event
@@ -35,32 +38,79 @@ class ApiClient:
 
         for calendar in vcalendar:
             for event in calendar['vevent']:
-                events.append(self.__parse_event(event))
+                ev = self.__parse_event(event)
+                # print('Event "{0}" at {1} with alarm at {2}'.format(
+                #     ev.summary,
+                #     ev.date_start.iso8601,
+                #     ev.alarms[0].date.iso8601
+                # ))
+                events.append(ev)
 
         return events
 
     def __parse_event(self, event: dict):
 
         alarms = []
+        date_start = Date.from_date_str(event['dtstart'][0])
+        date_end = Date.from_date_str(event['dtstart'][0])
+
         for alarm in event['valarm']:
-            alarms.append(
-                self.__parse_alarm(alarm, event['dtstart'][0])
-            )
+            alarms.append(self.__parse_alarm(alarm, date_start))
 
         return Event(
             event['uid'],
             event['summary'],
             event['description'],
-            event['dtstart'][0],
-            event['dtend'][0],
+            date_start,
+            date_end,
             alarms
         )
 
-    def __parse_alarm(self, alarm: dict, date_str):
-        date = Date.from_date_str_and_date_diff(date_str, alarm['trigger'])
+    """Parses the alarm from the TRIGGER by calculating a new date
+https://www.kanzaki.com/docs/ical/trigger.html
+Formats:
+
+-PT16H
+-P23T
+-P12T5H
+-PT23M
+-P10T12H34M
+-P3T4H2M  
+    """
+    def __parse_alarm(self, alarm: dict, date_offset: 'Date'):
+
+        trigger_offset = list(regex_findall('\d+\D', alarm['trigger']))
+
+        seconds = 0
+        for part in trigger_offset:
+            num = int(re.search('\d+', part).group(0))
+            date_range = part[-1]
+            if date_range == 'T':
+                seconds += num * 86400
+            if date_range == 'H':
+                seconds += num * 3600
+            if date_range == 'M':
+                seconds += num * 60
+            if date_range == 'S':
+                seconds += num
+
+        alarm_date = Date.from_unix(date_offset.unix - seconds)
 
         return Alarm(
-            date,
+            alarm_date,
             alarm['description'],
             alarm['trigger']
         )
+
+    # https://www.kanzaki.com/docs/ical/trigger.html
+    @staticmethod
+    def __parse_date_from_date_str_and_trigger(date_str: str, trigger: str):
+        date = Date.from_date_str(date_str)
+
+        if 'RELATED' in trigger:
+            raise AppError.not_implemented('The trigger parsing of RELATED is not yet implemented')
+
+        if 'VALUE=' in trigger:
+            raise AppError.not_implemented('The trigger parsing of an absolute VALUE is not yet implemented')
+
+        raise AppError.not_implemented('The trigger parsing by regex is not implemented yet as long as regular expressions dont really work for micropython')
