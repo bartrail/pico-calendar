@@ -17,3 +17,10 @@ class Event:
         self.date_start = date_start
         self.date_end = date_end
         self.alarms = alarms
+
+    def print_alarm_dates(self) -> str:
+        iso_strings = []
+        for alarm in self.alarms:
+            iso_strings.append(alarm.date.iso8601)
+
+        return '/'.join(iso_strings)

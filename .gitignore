@@ -130,5 +130,5 @@ dmypy.json
 
 # custom files
 config.py
-ical.json
-ical.ics
+fixtures/ical.json
+fixtures/ical.ics

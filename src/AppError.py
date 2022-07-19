@@ -10,3 +10,11 @@ class AppError(Exception):
     def not_implemented(message):
         return AppError(message)
 
+    @staticmethod
+    def unexpected_content(message):
+        return AppError(message)
+
+    @staticmethod
+    def request_failed(url: str, status_code: int):
+        message = 'Error loading URL {0} with status code {1}'.format(url, status_code)
+        return AppError(message)

@@ -1,3 +1,5 @@
+import math
+
 from src.ParseError import ParseError
 
 
@@ -9,6 +11,7 @@ class Date:
     minute: int
     seconds: int
     unix: int
+    weekday: int
     iso8601: str
 
     def __init__(self, year: int, month: int, day: int, hour: int, minute: int, seconds: int):
@@ -27,9 +30,12 @@ class Date:
         self.hour = hour
         self.minute = minute
         self.seconds = seconds
-        self.unix = self.__calculate_unix()
 
         self.__assert_values()
+
+        self.unix = self.__calculate_unix()
+        # https://stackoverflow.com/questions/36389130/how-to-calculate-the-day-of-the-week-based-on-unix-time
+        self.weekday = (math.floor(self.unix / 86400) + 4) % 7
 
     @staticmethod
     def from_date_str(date_str: str) -> 'Date':
@@ -44,7 +50,7 @@ class Date:
         return Date(year, month, day, 0, 0, 0)
 
     @staticmethod
-    def from_unix(unix: int):
+    def from_unix(unix: int) -> 'Date':
         days_from_1970 = int(unix / 86400)
         seconds_left = unix % 86400
         hours = int(seconds_left / 3600)
@@ -78,6 +84,17 @@ class Date:
 
         return Date(year, month, days_left, hours, minutes, seconds)
 
+    @staticmethod
+    def from_rtc(*args) -> 'Date':
+        # tupel of (year, month, day, weekday, hours, minutes, seconds, subseconds)
+        return Date(
+            args[0][0],
+            args[0][1],
+            args[0][2],
+            args[0][4],
+            args[0][5],
+            args[0][6],
+        )
 
     def __calculate_unix(self) -> int:
         days = 0
@@ -122,6 +139,12 @@ class Date:
             return 31
         return 30
 
+    def is_same_day(self, date: 'Date') -> bool:
+        return self.year == date.year and self.month == date.month and self.day == date.day
+
+    def get_next_day(self) -> 'Date':
+        return Date.from_unix(self.unix + 86400)
+
     def is_greater(self, date: 'Date') -> bool:
         return self.unix > date.unix
 
@@ -139,11 +162,11 @@ class Date:
             raise ParseError.month_out_of_range(self.month)
 
         possible_days = Date.__days_in_month(self.year, self.month)
-        if (self.day < 0 or self.day > possible_days):
+        if self.day < 0 or self.day > possible_days:
             raise ParseError.day_out_of_range(self.day, self.month, self.year, possible_days)
 
-        if (self.hour < 0 or self.hour > 24):
+        if self.hour < 0 or self.hour > 24:
             raise ParseError.hour_out_of_range(self.hour)
 
-        if (self.minute < 0 or self.minute > 60):
+        if self.minute < 0 or self.minute > 60:
             raise ParseError.minute_out_of_range(self.minute)

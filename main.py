@@ -1,25 +1,18 @@
-import re
-from machine import Pin, PWM, ADC
+from machine import Pin, PWM, ADC, RTC
 
-from src.helper import regex_findall
+from src.RTCFactory import RTCFactory
+from src.Request import Request
 from src.model.Date import Date
 from src.wifi import wifi_connect
 from src.LCDScreen import LCDScreen
-from src.ical.ApiClient import ApiClient
+from src.ical.ApiParser import ApiParser
 import config
 
 BL = 13
 
-sensor_temp = ADC(4)
-conversion_factor = 3.3 / (65535)
-
-
 def load_data():
-    #file = open("ical.json", "r")
-    #fileContent = file.read()
-
-    #Api = ApiClient(config.ICAL_URL, fileContent)
-    Api = ApiClient(config.ICAL_URL)
+    json = Request.get_json(config.ICAL_URL)
+    Api = ApiParser(json)
     events = Api.parse_response()
 
 if __name__ == '__main__':
@@ -33,24 +26,8 @@ if __name__ == '__main__':
 
     LCD = LCDScreen()
 
-    # Date.from_unix(1658048884)  # 2022-07-17 09:08:04 GMT
-    # Date.from_unix(1709190443)  # 2024-02-29 07:07:23 GMT
-    # Date.from_unix(1767018959)  # 2025-12-29 14:35:59 GMT
-    # Date.from_unix(1767191759)  # 2025-12-31 14:35:59 GMT
-    #
-    # parse_trigger('-PT16H')
-    # parse_trigger('-P23T')
-    # parse_trigger('-P12T5H')
-    # parse_trigger('-PT23M')
-    # parse_trigger('-P10T12H34M')
-    # parse_trigger('-P3T4H2M')
-
     # color BRG
     LCD.fill(LCD.white)
-
-    reading = sensor_temp.read_u16() * conversion_factor
-    temperature = 27 - (reading - 0.706) / 0.001721
-    tempStr = '%.1f' % temperature
 
     offsetTop = 35
     offsetText = 15
@@ -59,7 +36,6 @@ if __name__ == '__main__':
     LCD.text("Raspi Pico", 90, offsetTop, LCD.red)
     LCD.text("PicoGo", 90, offsetTop + offsetText, LCD.green)
     LCD.text("Pico-LCD-1.14", 90, offsetTop + offsetText * 2, LCD.blue)
-    LCD.text("Temp: " + tempStr + "C", 90, offsetTop + offsetText * 3, LCD.blue)
 
     # LCD.hline(10,10,220,LCD.blue)
     # LCD.hline(10,125,220,LCD.blue)
@@ -85,6 +61,10 @@ if __name__ == '__main__':
         wlan = False
 
     LCD.show()
+    now = RTCFactory.init_rtc()
+    top = offsetTop + offsetText * 5
+    LCD.fill_rect(0,top, 300, 20, LCD.white)
+    LCD.text(now.iso8601, 0, top, LCD.blue)
     load_data()
 
     while (1):
