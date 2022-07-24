@@ -1,5 +1,6 @@
 import math
 
+from machine import RTC
 from src.ParseError import ParseError
 
 
@@ -85,15 +86,16 @@ class Date:
         return Date(year, month, days_left, hours, minutes, seconds)
 
     @staticmethod
-    def from_rtc(*args) -> 'Date':
+    def from_rtc(rtc: 'RTC') -> 'Date':
         # tupel of (year, month, day, weekday, hours, minutes, seconds, subseconds)
+        tupel = rtc.datetime()
         return Date(
-            args[0][0],
-            args[0][1],
-            args[0][2],
-            args[0][4],
-            args[0][5],
-            args[0][6],
+            tupel[0],
+            tupel[1],
+            tupel[2],
+            tupel[4],
+            tupel[5],
+            tupel[6],
         )
 
     def __calculate_unix(self) -> int:

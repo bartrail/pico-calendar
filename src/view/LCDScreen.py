@@ -23,14 +23,17 @@ class LCDScreen(framebuf.FrameBuffer):
         self.dc(1)
         self.buffer = bytearray(self.height * self.width * 2)
         super().__init__(self.buffer, self.width, self.height, framebuf.RGB565)
-        
+
         self.init_display()
-        
+
+        self.black =   0x0000
         self.red   =   0x07E0
         self.green =   0x001f
-        self.blue  =   0xf800
-        self.white =   0xffff
-        
+        self.yellow =  0x00ff
+        self.dark_blue = 0xf800
+        self.blue  =   0xff00
+        self.white =   0xffff       # 65535
+
     def write_cmd(self, cmd):
         self.cs(1)
         self.dc(0)
@@ -50,11 +53,11 @@ class LCDScreen(framebuf.FrameBuffer):
         self.rst(1)
         self.rst(0)
         self.rst(1)
-        
+
         self.write_cmd(0x36)
         self.write_data(0x70)
 
-        self.write_cmd(0x3A) 
+        self.write_cmd(0x3A)
         self.write_data(0x05)
 
         self.write_cmd(0xB2)
@@ -65,7 +68,7 @@ class LCDScreen(framebuf.FrameBuffer):
         self.write_data(0x33)
 
         self.write_cmd(0xB7)
-        self.write_data(0x35) 
+        self.write_data(0x35)
 
         self.write_cmd(0xBB)
         self.write_data(0x19)
@@ -77,13 +80,13 @@ class LCDScreen(framebuf.FrameBuffer):
         self.write_data(0x01)
 
         self.write_cmd(0xC3)
-        self.write_data(0x12)   
+        self.write_data(0x12)
 
         self.write_cmd(0xC4)
         self.write_data(0x20)
 
         self.write_cmd(0xC6)
-        self.write_data(0x0F) 
+        self.write_data(0x0F)
 
         self.write_cmd(0xD0)
         self.write_data(0xA4)
@@ -120,7 +123,7 @@ class LCDScreen(framebuf.FrameBuffer):
         self.write_data(0x1F)
         self.write_data(0x20)
         self.write_data(0x23)
-        
+
         self.write_cmd(0x21)
 
         self.write_cmd(0x11)
@@ -133,15 +136,15 @@ class LCDScreen(framebuf.FrameBuffer):
         self.write_data(0x28)
         self.write_data(0x01)
         self.write_data(0x17)
-        
+
         self.write_cmd(0x2B)
         self.write_data(0x00)
         self.write_data(0x35)
         self.write_data(0x00)
         self.write_data(0xBB)
-        
+
         self.write_cmd(0x2C)
-        
+
         self.cs(1)
         self.dc(1)
         self.cs(0)

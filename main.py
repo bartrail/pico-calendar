@@ -1,10 +1,12 @@
-from machine import Pin, PWM, ADC, RTC
+from machine import Pin, PWM
+from time import sleep
 
 from src.RTCFactory import RTCFactory
 from src.Request import Request
-from src.model.Date import Date
+from src.view.Color import Color
 from src.wifi import wifi_connect
-from src.LCDScreen import LCDScreen
+from src.view.LCDScreen import LCDScreen
+from src.view.Display import Display
 from src.ical.ApiParser import ApiParser
 import config
 
@@ -87,42 +89,42 @@ if __name__ == '__main__':
             LCD.rect(208, 12, 20, 20, LCD.red)
 
         if (keyB.value() == 0):
-            LCD.fill_rect(208, 103, 20, 20, LCD.red)
             print("B")
+            # LCD.fill_rect(208, 103, 20, 20, LCD.red)
         else:
             LCD.fill_rect(208, 103, 20, 20, LCD.white)
             LCD.rect(208, 103, 20, 20, LCD.red)
 
         if (keyUp.value() == 0):  # 上
-            LCD.fill_rect(37, 35, 20, 20, LCD.red)
+            LCD.fill_rect(37, 35, 20, 20, Display.blue)
             print("UP")
         else:
             LCD.fill_rect(37, 35, 20, 20, LCD.white)
             LCD.rect(37, 35, 20, 20, LCD.red)
 
         if (keyCtrl.value() == 0):  # 中
-            LCD.fill_rect(37, 60, 20, 20, LCD.red)
+            LCD.fill_rect(37, 60, 20, 20, Display.magenta)
             print("CTRL")
         else:
             LCD.fill_rect(37, 60, 20, 20, LCD.white)
             LCD.rect(37, 60, 20, 20, LCD.red)
 
         if (keyLeft.value() == 0):  # 左
-            LCD.fill_rect(12, 60, 20, 20, LCD.red)
+            LCD.fill_rect(12, 60, 20, 20, Display.yellow)
             print("LEFT")
         else:
             LCD.fill_rect(12, 60, 20, 20, LCD.white)
             LCD.rect(12, 60, 20, 20, LCD.red)
 
         if (keyDown.value() == 0):  # 下
-            LCD.fill_rect(37, 85, 20, 20, LCD.red)
+            LCD.fill_rect(37, 85, 20, 20, Display.blue)
             print("DOWN")
         else:
             LCD.fill_rect(37, 85, 20, 20, LCD.white)
             LCD.rect(37, 85, 20, 20, LCD.red)
 
         if (keyRight.value() == 0):  # 右
-            LCD.fill_rect(62, 60, 20, 20, LCD.red)
+            LCD.fill_rect(62, 60, 20, 20, Display.cyan)
             print("RIGHT")
         else:
             LCD.fill_rect(62, 60, 20, 20, LCD.white)

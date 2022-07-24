@@ -1,5 +1,6 @@
 from machine import RTC
 
+import config
 from src.AppError import AppError
 from src.Request import Request
 from src.model.Date import Date
@@ -48,5 +49,8 @@ class RTCFactory:
         )
         RTCFactory.rtc = RTC()
         RTCFactory.rtc.datetime(tupel)
+
+        if config.DEBUG:
+            print('RTC initialized at: {0}'.format(date.iso8601))
 
         return date

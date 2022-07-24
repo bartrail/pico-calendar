@@ -29,3 +29,8 @@ Subscribe to a iCal feed and show events on your Raspberry Pi Pico W with a 1.14
 4. To run it without an attached computer, copy `main.py` as well to / 
 
 You should see something printed in the console and the screen should show something :)
+
+## Libraries
+
+1. The EventBus is copied from [seanpar203/event-bus](https://github.com/seanpar203/event-bus) and modified to work on micropython
+2. 
