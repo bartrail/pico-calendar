@@ -10,3 +10,7 @@ class Color:
     white = 0xffff
 
     orange = 0x8C31 # correct ?
+
+    @staticmethod
+    def get(name):
+        return getattr(Color, name)

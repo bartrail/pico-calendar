@@ -1,3 +1,6 @@
+from time import sleep
+import gc
+
 import config
 from src.event_bus.bus import EventBus
 from src.RTCFactory import RTCFactory
@@ -7,27 +10,21 @@ from src.ical.ApiParser import ApiParser
 from src.ical.EventManager import EventManager
 from src.model.Date import Date
 from src.view.Display import Display
-from src.wifi import wifi_connect
+from src.wifi import Wifi
 
 # registering some important global variables
-wifi = None
+wifi = Wifi(config.WIFI_SSID, config.WIFI_PASSWORD, config.WIFI_COUNTRY)
 event_manager = None # 'EventManager'
 bus = EventBus()
 display = Display()
 buttons = Buttons()
 
 @bus.on('wifi.connect')
-def subscribed_event():
-    def while_connecting(wlan, status):
-        display.render_connecting(wlan, status)
+def wifi_connect():
+    def while_connecting(wlan: 'Wifi'):
+        display.render_connecting(wlan)
 
-    global wifi
-    wifi = wifi_connect(
-        config.WIFI_SSID,
-        config.WIFI_PASSWORD,
-        config.WIFI_COUNTRY,
-        while_connecting
-    )
+    wifi.connect(while_connecting)
 
     bus.emit('wifi.status', wifi)
     if wifi.status() == 3:
@@ -36,41 +33,70 @@ def subscribed_event():
 
 
 @bus.on('wifi.status')
-def subscribed_event2(wifi):
+def wifi_status(wifi):
     display.render_wifi_status(wifi)
 
 
 @bus.on('data.load')
+@bus.on('button.pressed.down')
 def data_load():
-    json = Request.get_json(config.ICAL_URL)
-    Api = ApiParser(json)
-    events = Api.parse_response()
+    display.render_loading_data()
+    try:
+        if Request.is_loading:
+            return
 
-    global event_manager
-    if event_manager is None:
-        event_manager = EventManager(
-            Date.from_rtc(RTCFactory.rtc),
-            RTCFactory.rtc,
-            events
-        )
+        json = Request.get_json(config.ICAL_URL)
+        Api = ApiParser(json)
+        events = Api.parse_response()
+        del json
 
-    display.render_events_loaded(event_manager)
+        global event_manager
+        if event_manager is None:
+            event_manager = EventManager(
+                Date.from_rtc(RTCFactory.rtc),
+                RTCFactory.rtc,
+                events
+            )
+        else:
+            event_manager.update_events(events)
+
+        display.render_events_loaded(event_manager)
+
+    except BaseException as error:
+        display.render_error('Error loading Data!', error)
+        raise error
 
 
-@bus.on('button.pressed')
+@bus.on('button.pressed.a')
 def render_time():
     display.render_current_time(event_manager)
 
 
+@bus.on('button.pressed.b')
+def render_time():
+    display.render_events_loaded(event_manager)
+
+
+@bus.on('button.pressed.a.b.center')
+def exit():
+    display.render_error('Exit.', None)
+    raise SystemExit('exit')
+
 if __name__ == '__main__':
-    print('')
     bus.emit('wifi.connect')
+
+    if event_manager is None:
+        print('EventManager is not initialized')
+        raise SystemExit('exit')
 
     while True:
 
         event_manager.update_from_rtc()
 
         if Buttons.any_pressed():
-            bus.emit('button.pressed')
+            bus.emit('button.pressed.{0}'.format(Buttons.pressed_str()))
         else:
-            display.render_idle()
+            display.render_events(event_manager)
+
+        sleep(0.125)
+

@@ -30,6 +30,9 @@ class EventManager:
 
         self.__set_today(self.now)
 
+    def update_events(self, events: [Event]):
+        self.events = events
+
     def get_events_of_today(self) -> [Event]:
         events = []
         for event in self.events:
@@ -46,6 +49,23 @@ class EventManager:
                 events.append(event)
 
         return events
+
+    def get_triggered_events(self) -> [Event]:
+        events = []
+        for event in self.events:
+            if event.has_alarm_for(self.now):
+                events.append(event)
+
+        return events
+
+    def has_events_today(self) -> bool:
+        return len(self.get_events_of_today()) > 0
+
+    def has_events_tomorrow(self) -> bool:
+        return len(self.get_events_of_tomorrow()) > 0
+
+    def has_triggered_events(self) -> bool:
+        return len(self.get_triggered_events()) > 0
 
     def __set_today(self, date):
         self.today = Date(date.year, date.month, date.day, 0, 0, 0)

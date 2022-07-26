@@ -1,5 +1,5 @@
 """ A simple event bus """
-
+import config
 from src.event_bus.exceptions import EventDoesntExist
 
 
@@ -105,6 +105,11 @@ class EventBus:
         :param event: Name of the event.
         :type event: str
         """
+        if event not in self._events:
+            if config.DEBUG:
+                print('Event [{0}] has no listener'.format(event))
+            return
+
         for func in self._event_funcs(event):
             func(*args, **kwargs)
 

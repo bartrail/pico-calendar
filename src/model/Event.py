@@ -24,3 +24,10 @@ class Event:
             iso_strings.append(alarm.date.iso8601)
 
         return '/'.join(iso_strings)
+
+    def has_alarm_for(self, date: 'Date') -> bool:
+        for alarm in self.alarms:
+            if alarm.date.is_greater(date):
+                return True
+
+        return False
